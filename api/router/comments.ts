@@ -1,23 +1,29 @@
 import express from "express";
 import { OkPacket } from "mysql2";
 import mysqlDb from "../mysqlDb";
+import { Comment } from "../types";
 
-const locationRouter = express.Router();
+const commentRouter = express.Router();
 
-locationRouter.post("/", async (req, res) => {
-  if (!req.body.name) {
+commentRouter.post("/", async (req, res) => {
+  if (!req.body.post_id || !req.body.text) {
     return res.status(400).send({ error: "Name are required" });
   }
 
   const locationData = {
-    name: req.body.name,
-    description: req.body.description,
+    post_id: req.body.post_id,
+    text: req.body.text,
+    author: req.body.author,
   };
+
+  if (!req.body.author) {
+    locationData.author = 'anonymous';
+  }
 
   const connection = mysqlDb.getConnection();
   const result = await connection.query(
-    "INSERT INTO location (name, description) VALUES (? ,?)",
-    [locationData.name, locationData.description]
+    "INSERT INTO Comment (post_id, text, author) VALUES (? ,?, ?)",
+    [locationData.post_id, locationData.text, locationData.author]
   );
 
   const info = result[0] as OkPacket;
@@ -28,27 +34,14 @@ locationRouter.post("/", async (req, res) => {
   });
 });
 
-locationRouter.get("/", async (req, res) => {
+commentRouter.get("/", async (req, res) => {
   const connection = mysqlDb.getConnection();
-  const result = await connection.query("SELECT id , name FROM location");
+  const result = await connection.query("SELECT * FROM Comment");
   const item = result[0];
   res.send(item);
 });
 
-locationRouter.get("/:id", async (req, res) => {
-  const connection = mysqlDb.getConnection();
-  const result = await connection.query("select * FROM location WHERE id = ?", [
-    req.params.id,
-  ]);
-  const items = result[0] as LocationAndCategori[];
-  const item = items[0];
-  if (!item) {
-    return res.status(404).send({ error: "Not found" });
-  }
-  res.send(item);
-});
-
-locationRouter.delete("/:id", async (req, res) => {
+commentRouter.delete("/:id", async (req, res) => {
   const connection = mysqlDb.getConnection();
   const result = await connection.query("DELETE FROM location WHERE id = ?", [
     req.params.id,
@@ -61,4 +54,4 @@ locationRouter.delete("/:id", async (req, res) => {
   }
 });
 
-export default locationRouter;
+export default commentRouter;
