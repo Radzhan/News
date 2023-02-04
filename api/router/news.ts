@@ -55,14 +55,15 @@ newsRouter.get("/:id", async (req, res) => {
 
 newsRouter.delete("/:id", async (req, res) => {
   const connection = mysqlDb.getConnection();
-  const result = await connection.query("DELETE FROM location WHERE id = ?", [
+  const result = await connection.query("DELETE FROM Post WHERE id = ?", [
     req.params.id,
   ]);
   const item = result[0] as OkPacket;
+
   if (item.affectedRows === 0) {
-    return res.send("incorrect location");
+    res.send("incorrect news id");
   } else {
-    return res.send("location was delete");
+    res.send("News deleted");
   }
 });
 

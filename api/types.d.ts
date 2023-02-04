@@ -3,7 +3,7 @@ export interface Post {
   title: string;
   text: string;
   image: string | null;
-  date: string | null;
+  date: string;
 }
 export interface Comment {
   id: number;

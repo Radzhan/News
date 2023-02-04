@@ -17,7 +17,7 @@ commentRouter.post("/", async (req, res) => {
   };
 
   if (!req.body.author) {
-    locationData.author = 'anonymous';
+    locationData.author = "anonymous";
   }
 
   const connection = mysqlDb.getConnection();
@@ -35,22 +35,34 @@ commentRouter.post("/", async (req, res) => {
 });
 
 commentRouter.get("/", async (req, res) => {
+  const Querydate = req.query.news_id as string;
   const connection = mysqlDb.getConnection();
-  const result = await connection.query("SELECT * FROM Comment");
-  const item = result[0];
-  res.send(item);
+
+  if (Querydate === undefined) {
+    const result = await connection.query("SELECT * FROM Comment");
+
+    res.send(result[0]);
+  } else {
+    const resultComment = await connection.query(
+      "select * from Comment where post_id = ?",
+      [Querydate]
+    );
+
+    res.send(resultComment[0]);
+  }
 });
 
 commentRouter.delete("/:id", async (req, res) => {
   const connection = mysqlDb.getConnection();
-  const result = await connection.query("DELETE FROM location WHERE id = ?", [
+  const result = await connection.query("DELETE FROM Comment WHERE id = ?", [
     req.params.id,
   ]);
   const item = result[0] as OkPacket;
+
   if (item.affectedRows === 0) {
-    return res.send("incorrect location");
+    res.send("incorrect Comment id");
   } else {
-    return res.send("location was delete");
+    res.send("News deleted");
   }
 });
 

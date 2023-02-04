@@ -6,7 +6,7 @@ const config = {
   rootPath,
   publicPath: path.join(rootPath, 'public'),
   db: {
-    host:'localhost', user: 'root', password: 'rad123bay', database: 'news'
+    host:'localhost', user: 'root', password: 'rad123bay', database: 'News'
   }
 };
 
